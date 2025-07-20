@@ -1,7 +1,9 @@
 import http from 'k6/http';
 import {sleep, check, group} from 'k6';
-
 import {browser} from 'k6/browser';
+import { open } from 'k6/experimental/fs';
+import csv from 'k6/experimental/csv';
+import exec from 'k6/execution';
 
 export const options = {
         // run the tests with different scenarios
@@ -85,6 +87,8 @@ export async function ui() {
         await page.close();
     }
 }
+
+
 const headers = {
     "Proxy-Connection": `keep-alive`,
     "Upgrade-Insecure-Requests": `1`,
@@ -93,12 +97,15 @@ const headers = {
     "Accept-Language": `en-GB,en-US;q=0.9,en;q=0.8`,
 };
 
+const formDatFile = await open('form-data.csv');
+const formDataCsv = await csv.parse(formDatFile, { delimiter: ',', asObjects: true });
+
 export async function simpleForm() {
     let params;
     let resp;
     let url;
-    const correlation_vars = {};
 
+    let i = formDataCsv[exec.scenario.iterationInTest % formDataCsv.length];
     group("Landing on a simple form", function () {
         params = {
             headers: headers,
@@ -110,6 +117,43 @@ export async function simpleForm() {
 
         check(resp, {"Landing on simple form has been successful": (r) => r.status === 200});
     });
+
+    const formData = `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][1][first]"\r\n\r\n${i.Name}\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][1][last]"\r\n\r\n${i.Surname}\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][5]"\r\n\r\n\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][2]"\r\n\r\n${i.Email}\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][4]"\r\n\r\n\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[fields][3]"\r\n\r\n${i.Message || "My comment or my message"}\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[id]"\r\n\r\n8\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="page_title"\r\n\r\nsimple-form\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="page_url"\r\n\r\nhttp://ubuntu1.cat:30180/simple-form/\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="url_referer"\r\n\r\n\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="page_id"\r\n\r\n10\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[post_id]"\r\n\r\n10\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[submit]"\r\n\r\nwpforms-submit\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="wpforms[token]"\r\n\r\n054f5adcbb5309f422d55e0bd244c68e\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="action"\r\n\r\nwpforms_submit\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="start_timestamp"\r\n\r\n1753010534\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\n` +
+        `Content-Disposition: form-data; name="end_timestamp"\r\n\r\n1753010592\r\n` +
+        `------WebKitFormBoundaryBzBiOLOAABeG7PBl--\r\n`;
+
     group("Submitting simple form", function () {
         params = {
             headers: {
@@ -123,7 +167,7 @@ export async function simpleForm() {
         resp = http.request(
             "POST",
             url,
-            `------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][1][first]"\r\n\r\nMyname\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][1][last]"\r\n\r\nMysurname\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][5]"\r\n\r\n\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][2]"\r\n\r\nmyemail@myemail.com\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][4]"\r\n\r\n\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[fields][3]"\r\n\r\nMy comment or my message\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[id]"\r\n\r\n8\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="page_title"\r\n\r\nsimple-form\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="page_url"\r\n\r\nhttp://ubuntu1.cat:30180/simple-form/\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="url_referer"\r\n\r\n\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="page_id"\r\n\r\n10\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[post_id]"\r\n\r\n10\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[submit]"\r\n\r\nwpforms-submit\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="wpforms[token]"\r\n\r\n054f5adcbb5309f422d55e0bd244c68e\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="action"\r\n\r\nwpforms_submit\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="start_timestamp"\r\n\r\n1753010534\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl\r\nContent-Disposition: form-data; name="end_timestamp"\r\n\r\n1753010592\r\n------WebKitFormBoundaryBzBiOLOAABeG7PBl--\r\n`,
+            formData,
             params,
         );
 

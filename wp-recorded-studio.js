@@ -42,6 +42,7 @@ export default function () {
   let url;
   const correlation_vars = {};
 
+
   group("Sample page", function () {
     params = {
       headers: headers,

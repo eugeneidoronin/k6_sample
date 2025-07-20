@@ -10,6 +10,7 @@ export const options = {
           type: 'chromium',
         },
       },
+      iterations: 100,
     },
   },
   thresholds: {
@@ -23,18 +24,16 @@ export default async function () {
 
   try {
     await page.goto('http://ubuntu1.cat:30180/sample-page/', {
-        waitUntil: 'networkidle'
+      waitUntil: 'load',
     });
 
-    await page.locator('input[name="login"]').type('admin');
-    await page.locator('input[name="password"]').type('123');
+    const youlinktext = await page.locator("//p[contains(.,'Have fun!')]").count();
 
-    await Promise.all([page.waitForNavigation(), page.locator('input[type="submit"]').click()]);
+    check(youlinktext,
+        {'The Have fun! text has been found':
+              (ylt) => ylt > 0 });
 
-    const youlinktext = page.locator("//a[text()='Your Link Text']");
 
-    await youlinktext.check();
-    
   } finally {
     await page.close();
   }

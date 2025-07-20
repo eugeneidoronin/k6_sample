@@ -21,30 +21,30 @@ export const options = {
       executor: 'constant-arrival-rate',
       rate: 5,
       timeUnit: '1s',
-      duration: '23m',
+      duration: '2m',
       preAllocatedVUs: 20,
       maxVUs: 50,
     },
   },
 };
 
-export default function () {
-  let params;
-  let resp;
-  let match;
-  let regex;
-  let url;
-  const correlation_vars = {};
-
-  group("Sample page", function () {
-    params = {
-      headers: {
+const headers = {
         "Proxy-Connection": `keep-alive`,
         "Upgrade-Insecure-Requests": `1`,
         Accept: `text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7`,
         "Accept-Encoding": `gzip, deflate`,
         "Accept-Language": `en-GB,en-US;q=0.9,en;q=0.8`,
-      },
+      };
+
+export default function () {
+  let params;
+  let resp;
+  let url;
+  const correlation_vars = {};
+
+  group("Sample page", function () {
+    params = {
+      headers: headers,
       cookies: {},
     };
 
@@ -56,12 +56,8 @@ export default function () {
   group( "User's Blog!", function () {
     params = {
       headers: {
-        "Proxy-Connection": `keep-alive`,
-        "Upgrade-Insecure-Requests": `1`,
-        Accept: `text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7`,
+        ...headers,
         Referer: `http://192.168.3.131:30180/sample-page/`,
-        "Accept-Encoding": `gzip, deflate`,
-        "Accept-Language": `en-GB,en-US;q=0.9,en;q=0.8`,
       },
       cookies: {},
     };

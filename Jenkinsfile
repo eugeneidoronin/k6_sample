@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'common'
+    }
     
     parameters {
         string(name: 'test_file', defaultValue: 'wp-sample-page.js', description: 'The k6 test file to run')
@@ -118,7 +120,7 @@ pipeline {
     
     post {
         always {
-            node('any') {
+            node('common') {
                     cleanWs(
                         patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'],
                                    [pattern: '**/.git/**', type: 'INCLUDE']],

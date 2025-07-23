@@ -118,15 +118,15 @@ pipeline {
     
     post {
         always {
-            node{
-                cleanWs(
-                    patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'],
-                               [pattern: '**/.git/**', type: 'INCLUDE']],
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true
-                )
-            }
+            node('any') {
+                    cleanWs(
+                        patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'],
+                                   [pattern: '**/.git/**', type: 'INCLUDE']],
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
+                }
         }
         success {
             echo "K6 tests completed successfully for ${params.test_file}"

@@ -124,7 +124,8 @@ pipeline {
                     keepAll: true,
                     reportDir: 'test-results',
                     reportFiles: 'html-report.html',
-                    reportName: 'K6 Test Results'
+                    reportName: 'K6 Test Results',
+                    allowScripts: true 
                 ])
             }
         }

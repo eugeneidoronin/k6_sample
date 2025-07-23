@@ -5,7 +5,7 @@ pipeline {
     
     parameters {
         string(name: 'test_file', defaultValue: 'wp-sample-page.js', description: 'The k6 test file to run')
-        choice(name: 'output_destination', choices: ['prometheus', 'influxdb', 'json'], description: 'Where to store test results')
+        choice(name: 'output_destination', choices: ['prometheus', 'influxdb', 'html'], description: 'Where to store test results')
         string(name: 'vus', defaultValue: '', description: 'Number of virtual users (optional, uses test file defaults if empty)')
         string(name: 'duration', defaultValue: '', description: 'Test duration (optional, uses test file defaults if empty)')
         booleanParam(name: 'debug', defaultValue: false, description: 'Enable debug output')
@@ -94,13 +94,15 @@ pipeline {
                             """
                             break
 
-                        case 'json':
+                        case 'html':
                             // Create results directory if it doesn't exist
                             sh "mkdir -p test-results"
 
                             sh """
                             ${scenarioEnv}
-                            k6 run -o json=test-results/results.json ${options} \\
+                            K6_WEB_DASHBOARD=true \\
+                            K6_WEB_DASHBOARD_EXPORT=test-results/html-report.html \\
+                            k6 run ${options} \\
                             ${params.test_file}
                             """
                             break
@@ -111,26 +113,17 @@ pipeline {
 
         stage('Archive Results') {
             when {
-                expression { params.output_destination == 'json' }
+                expression { params.output_destination == 'html' }
             }
             steps {
                 archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
-
-                // Generate a simple HTML report from JSON data
-                sh '''
-                echo '<html><head><title>K6 Test Results</title></head><body>' > test-results/summary.html
-                echo '<h1>K6 Test Results Summary</h1>' >> test-results/summary.html
-                echo '<pre>' >> test-results/summary.html
-                cat test-results/results.json | grep -E 'checks|http_req_duration|vus|iterations' >> test-results/summary.html
-                echo '</pre></body></html>' >> test-results/summary.html
-                '''
 
                 publishHTML([
                     allowMissing: false,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
                     reportDir: 'test-results',
-                    reportFiles: 'summary.html',
+                    reportFiles: 'html-report.html',
                     reportName: 'K6 Test Results'
                 ])
             }

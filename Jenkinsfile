@@ -155,6 +155,7 @@ pipeline {
                         notFailBuild: true
                     )
                 }
+            }
         }
     }
 }

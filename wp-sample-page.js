@@ -23,35 +23,50 @@ const HEADERS = {
   "Accept-Language": 'en-GB,en-US;q=0.9,en;q=0.8',
 };
 
-export const options = {
-  scenarios: {
-    simpleForm: {
-      executor: 'per-vu-iterations',
-      vus: 10,
-      iterations: 20,
-      maxDuration: '2m',
-      exec: 'simpleForm',
-      startTime: '20s',
-      gracefulStop: '5s',
-    },
-    samplePage: {
-      executor: 'constant-arrival-rate',
-      preAllocatedVUs: 100,
-      rate: 2,
-      duration: '2m',
-      gracefulStop: '5s'
-    },
-    browser: {
-      executor: 'shared-iterations',
-      options: {
-        browser: {
-          type: 'chromium',
-        },
-      },
-      exec: 'ui',
-      iterations: 15
-    },
+// Get scenario parameters from environment variables or use defaults
+const simpleFormVUs = __ENV.K6_SCENARIO_SIMPLE_FORM_VUS ? parseInt(__ENV.K6_SCENARIO_SIMPLE_FORM_VUS) : 10;
+const simpleFormIterations = __ENV.K6_SCENARIO_SIMPLE_FORM_ITERATIONS ? parseInt(__ENV.K6_SCENARIO_SIMPLE_FORM_ITERATIONS) : 20;
+const samplePageRate = __ENV.K6_SCENARIO_SAMPLE_PAGE_RATE ? parseInt(__ENV.K6_SCENARIO_SAMPLE_PAGE_RATE) : 2;
+const samplePageDuration = __ENV.K6_SCENARIO_SAMPLE_PAGE_DURATION || '2m';
+const uiEnabled = __ENV.K6_SCENARIO_UI_ENABLED === 'true';
+const uiIterations = __ENV.K6_SCENARIO_UI_ITERATIONS ? parseInt(__ENV.K6_SCENARIO_UI_ITERATIONS) : 15;
+
+// Create scenarios configuration
+const scenarios = {
+  simpleForm: {
+    executor: 'per-vu-iterations',
+    vus: simpleFormVUs,
+    iterations: simpleFormIterations,
+    maxDuration: '5m',
+    exec: 'simpleForm',
+    startTime: '20s',
+    gracefulStop: '5s',
   },
+  samplePage: {
+    executor: 'constant-arrival-rate',
+    preAllocatedVUs: 100,
+    rate: samplePageRate,
+    duration: samplePageDuration,
+    gracefulStop: '5s'
+  }
+};
+
+// Only add the UI scenario if enabled
+if (uiEnabled) {
+  scenarios.browser = {
+    executor: 'shared-iterations',
+    options: {
+      browser: {
+        type: 'chromium',
+      },
+    },
+    exec: 'ui',
+    iterations: uiIterations
+  };
+}
+
+export const options = {
+  scenarios: scenarios,
   thresholds: {
     'http_req_duration': [
       'p(90) < 3000',

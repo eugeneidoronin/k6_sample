@@ -135,25 +135,26 @@ pipeline {
                 ])
             }
         }
-    }
 
-    post {
-        always {
-            node('common'){
-                cleanWs(
-                    patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'],
-                               [pattern: '**/.git/**', type: 'INCLUDE']],
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true
-                )
-            }
-        }
-        success {
-            echo "K6 tests completed successfully for ${params.test_file}"
-        }
-        failure {
-            echo "K6 tests failed for ${params.test_file}"
+        stage('Workspace Cleanup'){
+            steps {
+                script {
+                    // Log status messages based on build result
+                    if (currentBuild.currentResult == 'SUCCESS') {
+                        echo "K6 tests completed successfully for ${params.test_file}"
+                    } else {
+                        echo "K6 tests failed for ${params.test_file}"
+                    }
+
+                    // Clean workspace
+                    cleanWs(
+                        patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'],
+                                  [pattern: '**/.git/**', type: 'INCLUDE']],
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
+                }
         }
     }
 }

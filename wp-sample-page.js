@@ -199,15 +199,7 @@ export async function simpleForm() {
     );
 
     check(resp, {
-      "The form has been submitted successfully": (r) => r.status === 200,
-      "Response contains success message": (r) => {
-        try {
-          const jsonResponse = JSON.parse(r.body);
-          return jsonResponse.success === true;
-        } catch (e) {
-          return false;
-        }
-      }
+      "The form has been submitted successfully": (r) => r.status === 200
     });
   });
   

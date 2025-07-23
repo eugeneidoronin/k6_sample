@@ -118,11 +118,17 @@ pipeline {
     
     post {
         always {
-            // Clean up any resources if needed
-            cleanWs(patterns: ['**/node_modules/**', '**/.git/**'], 
-                    deleteDirs: true, 
-                    disableDeferredWipeout: true,
-                    notFailBuild: true)
+            // Option 1: Use the corrected pattern format
+            cleanWs(
+                patterns: [[pattern: '**/node_modules/**', type: 'INCLUDE'], 
+                           [pattern: '**/.git/**', type: 'INCLUDE']],
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+            
+            // Option 2: If option 1 still fails, uncomment this and comment out the above
+            // sh 'rm -rf node_modules .git || true'
         }
         success {
             echo "K6 tests completed successfully for ${params.test_file}"

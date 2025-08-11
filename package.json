@@ -1,0 +1,24 @@
+{
+  "name": "k6_sample",
+  "version": "1.0.0",
+  "description": "This is a temporary repo. It contains my work with Grafana k6",
+  "main": "wp-sample-page.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eugeneidoronin/k6_sample.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/eugeneidoronin/k6_sample/issues"
+  },
+  "homepage": "https://github.com/eugeneidoronin/k6_sample#readme",
+  "devDependencies": {
+    "@types/k6": "^1.1.1"
+  }
+}

@@ -19,12 +19,12 @@ pipeline {
 
     environment {
         // Prometheus settings
-        PROMETHEUS_URL = 'http://ubuntu1.cat:30090/api/v1/write'
+        PROMETHEUS_URL = 'http://prometheus.ubuntu1.cat/api/v1/write'
 
         // InfluxDB settings
         INFLUXDB_ORG = 'ZORG'
         INFLUXDB_BUCKET = 'k6'
-        INFLUXDB_ADDR = 'http://ubuntu1.cat:32223/'
+        INFLUXDB_ADDR = 'http://influxdb.ubuntu1.cat/'
         // Store this as a credential in Jenkins
         INFLUXDB_TOKEN = credentials('influxdb-token')
     }

@@ -6,7 +6,7 @@ import {SharedArray} from 'k6/data';
 import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js';
 
 // Constants
-const BASE_URL = 'http://ubuntu1.cat:30180';
+const BASE_URL = 'http://wordpress.ubuntu1.cat';
 const ENDPOINTS = {
     SAMPLE_PAGE: '/sample-page/',
     SIMPLE_FORM: '/simple-form/',

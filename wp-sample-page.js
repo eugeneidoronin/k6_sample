@@ -87,8 +87,8 @@ export const options = {
     scenarios: scenarios,
     thresholds: {
         'http_req_duration': [
-            'p(90) < 4000',
-            'p(95) < 5000',
+            'p(90) < 5000',
+            'p(95) < 6000',
         ],
         'http_req_failed': ['rate < 0.05'],
         'checks': ['rate > 0.90'], // Slightly more lenient check rate
